@@ -5,12 +5,14 @@ import dev.foraged.game.arena.impl.UnlimitedArena
 import dev.foraged.game.board.GameBoardAdapter
 import dev.foraged.game.task.GameTask
 import dev.foraged.game.util.CC
+import dev.foraged.game.util.ItemBuilder
 import dev.foraged.game.util.TimeUtil
 import dev.foraged.colorgame.player.ColorGamePlayer
 import dev.foraged.colorgame.player.ColorGamePlayerState
 
 import org.bukkit.Bukkit
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
@@ -66,9 +68,8 @@ class ColorGame extends Game<ColorGamePlayer, UnlimitedArena> implements GameBoa
     @Override
     void start() {
         super.start()
-        broadcast("&a&lThe game has started!")
+        broadcast("&b&lThe game has started!")
         gameState = ColorGameState.ACTIVE
-        players().each {it.allowFlight = true}
         new GameTask(plugin, () -> stop()).delay(2400L).complete()
     }
 
@@ -87,8 +88,10 @@ class ColorGame extends Game<ColorGamePlayer, UnlimitedArena> implements GameBoa
     @Override
     void join(Player player) {
         super.join(player)
-        players.put(player.uniqueId, new ColorGamePlayer(player.uniqueId))
+        ColorGamePlayer data = new ColorGamePlayer(player.uniqueId);
+        player.inventory.helmet = new ItemBuilder(Material.LEATHER_HELMET).color(data.color.dye.color).name(data.color.displayName).build()
 
+        players.put(player.uniqueId, data)
         if (players.size() == 2) ready()
     }
 
@@ -105,48 +108,48 @@ class ColorGame extends Game<ColorGamePlayer, UnlimitedArena> implements GameBoa
         switch (gameState) {
             case ColorGameState.WAITING: {
                 return [
-                        "&7${new SimpleDateFormat("dd/MM/yy").format(new Date(System.currentTimeMillis()))}",
+                        arenaInfo,
                         "",
-                        "&fMap: &a${arena.class.simpleName}",
-                        "&fPlayers: &a${players.size()}/${Bukkit.maxPlayers}",
+                        "&fMap: &b${arena.class.simpleName}",
+                        "&fPlayers: &b${players.size()}/${Bukkit.maxPlayers}",
                         "",
-                        "&fWaiting for &a${required}&f more",
+                        "&fWaiting for &b${required}&f more",
                         "&fplayer${required == 1 ? "" : "s"} to join",
                         "",
-                        "&fGame: &a${name}",
+                        "&fGame: &b${name}",
                         "",
-                        "&ewww.twoot.tk"
+                        footer
                 ]
             }
             case ColorGameState.STARTING: {
                 return [
-                        "&7${new SimpleDateFormat("dd/MM/yy").format(new Date(System.currentTimeMillis()))}",
+                        arenaInfo,
                         "",
-                        "&fMap: &a${arena.class.simpleName}",
-                        "&fPlayers: &a${players.size()}/${Bukkit.maxPlayers}",
+                        "&fMap: &b${arena.class.simpleName}",
+                        "&fPlayers: &b${players.size()}/${Bukkit.maxPlayers}",
                         "",
-                        "&fStarting in &a${new SimpleDateFormat("mm:ss").format(new Date(_startTime * 1000))}&f to",
+                        "&fStarting in &b${new SimpleDateFormat("mm:ss").format(new Date(_startTime * 1000))}&f to",
                         "&fallow time for",
                         "&fadditional players",
                         "",
-                        "&fGame: &a${name}",
+                        "&fGame: &b${name}",
                         "",
-                        "&ewww.twoot.tk"
+                        footer
                 ]
             }
             case ColorGameState.ACTIVE:
             case ColorGameState.ENDING: {
                 return [
-                        "&7Duration: ${TimeUtil.millisToRoundedTime(System.currentTimeMillis() - started)}",
+                        "&7Duration: ${TimeUtil.formatTime(System.currentTimeMillis() - started)}",
                         "",
-                        "&fColor: &a${data.color.displayName}",
+                        "&fColor: &b${data.color.displayName}",
                         "",
-                        "&fPlayers Alive: &a${players.values().stream().filter(it -> it.state == ColorGamePlayerState.ALIVE).count()}",
+                        "&fPlayers Alive: &b${players.values().stream().filter(it -> it.state == ColorGamePlayerState.ALIVE).count()}",
                         "",
-                        "&fBlocks Captured: &a${data.coins as int}",
+                        "&fBlocks Captured: &b${data.coins as int}",
                         "",
-                        "&7${new SimpleDateFormat("dd/MM/yy").format(new Date(System.currentTimeMillis()))}",
-                        "&ewww.twoot.tk"
+                        arenaInfo,
+                        footer
                 ]
             }
         }

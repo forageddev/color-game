@@ -31,7 +31,6 @@ class ColorGameListener implements Listener {
         Player player = e.player
 
         e.joinMessage = null
-
         if (game.gameState == ColorGameState.WAITING || game.gameState == ColorGameState.STARTING) {
             game.join(player)
         } else {
@@ -73,9 +72,9 @@ class ColorGameListener implements Listener {
                             data.coins = data.coins + 1
                             relative.type = data.color.wool
                     }).delay(10L).complete()
-                } else if (!relative.type.name().contains(data.color.wool.name())) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 200, 1))
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 200, 128))
+                } else if (relative.type != Material.AIR && !relative.type.name().contains(data.color.wool.name())) {
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 2))
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100, 128))
                 }
             }
         }
