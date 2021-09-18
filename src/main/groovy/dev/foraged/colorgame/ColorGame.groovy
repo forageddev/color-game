@@ -30,7 +30,6 @@ class ColorGame extends Game<ColorGamePlayer, UnlimitedArena> implements GameBoa
         arena = new UnlimitedArena()
         arena.spawnPoints = new Location(Bukkit.getWorlds()[0], 100, 5, 100)
         gameState = ColorGameState.WAITING
-        register(new ColorGameListener())
     }
 
     @Override
@@ -89,11 +88,11 @@ class ColorGame extends Game<ColorGamePlayer, UnlimitedArena> implements GameBoa
 
     @Override
     void join(Player player) {
-        super.join(player)
         ColorGamePlayer data = new ColorGamePlayer(player.uniqueId);
-        player.inventory.helmet = new ItemBuilder(Material.LEATHER_HELMET).color(data.color.dye.color).name(data.color.displayName).build()
-
         players.put(player.uniqueId, data)
+        super.join(player)
+
+        player.inventory.helmet = new ItemBuilder(Material.LEATHER_HELMET).color(data.color.dye.color).name(data.color.displayName).build()
         if (players.size() == 2) ready()
     }
 

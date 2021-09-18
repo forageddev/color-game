@@ -13,7 +13,7 @@ class ColorGamePlayer extends GamePlayer implements Comparable<ColorGamePlayer> 
     ColorGamePlayer(UUID id) {
         super(id)
         color = nextColor
-        nextColor = ColorGamePlayerColor.values()[nextColor.ordinal() + 1]
+        nextColor = nextColor.next
 
         state = ColorGamePlayerState.ALIVE
     }

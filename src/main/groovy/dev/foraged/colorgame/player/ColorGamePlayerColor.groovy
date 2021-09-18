@@ -38,4 +38,9 @@ enum ColorGamePlayerColor {
     Material getStainedGlass() {
         return Material.valueOf("${dye.name()}_STAINED_GLASS")
     }
+
+    ColorGamePlayerColor getNext() {
+        if (this == BLUE) return RED
+        return values()[ordinal() + 1]
+    }
 }
