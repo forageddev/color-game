@@ -1,5 +1,6 @@
 package dev.foraged.colorgame
 
+import dev.foraged.colorgame.listener.ColorGameListener
 import dev.foraged.game.Game
 import dev.foraged.game.arena.impl.UnlimitedArena
 import dev.foraged.game.board.GameBoardAdapter
@@ -29,6 +30,7 @@ class ColorGame extends Game<ColorGamePlayer, UnlimitedArena> implements GameBoa
         arena = new UnlimitedArena()
         arena.spawnPoints = new Location(Bukkit.getWorlds()[0], 100, 5, 100)
         gameState = ColorGameState.WAITING
+        register(new ColorGameListener())
     }
 
     @Override
