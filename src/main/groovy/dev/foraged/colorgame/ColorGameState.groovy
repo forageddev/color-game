@@ -1,6 +1,6 @@
-package dev.foraged.tntgame
+package dev.foraged.colorgame
 
-enum TNTGameState {
+enum ColorGameState {
 
     WAITING,
     STARTING,

@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="tnt-game:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/tnt_game_jar</output-path>
+  <artifact type="jar" name="color-game:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/color_game_jar</output-path>
     <root id="archive" name="tnt-game.jar">
       <element id="module-output" name="tnt-game" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar" path-in-jar="/" />

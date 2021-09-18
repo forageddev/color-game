@@ -1,16 +1,14 @@
-package dev.foraged.tntgame
+package dev.foraged.colorgame
 
 import dev.foraged.game.Game
-import dev.foraged.game.SpectatableGame
 import dev.foraged.game.arena.impl.UnlimitedArena
 import dev.foraged.game.board.GameBoardAdapter
 import dev.foraged.game.task.GameTask
 import dev.foraged.game.util.CC
 import dev.foraged.game.util.TimeUtil
-import dev.foraged.tntgame.player.TNTGamePlayer
-import dev.foraged.tntgame.player.TNTGamePlayerState
-import dev.foraged.tntgame.task.TNTGameCampTask
-import dev.foraged.tntgame.task.TNTGamePointTask
+import dev.foraged.colorgame.player.ColorGamePlayer
+import dev.foraged.colorgame.player.ColorGamePlayerState
+
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Sound
@@ -18,43 +16,39 @@ import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 
 import java.text.SimpleDateFormat
-import java.util.stream.Collectors
 
-class TNTGame extends Game<TNTGamePlayer, UnlimitedArena> implements SpectatableGame, GameBoardAdapter {
+class ColorGame extends Game<ColorGamePlayer, UnlimitedArena> implements GameBoardAdapter {
 
-    TNTGameState gameState
+    ColorGameState gameState
     var _startTime = 30
 
-    TNTGame(TNTGamePlugin plugin) {
-        super(plugin, "TNT Run", "Avoid the falling blocks and try to\nsurvive longer than everyone else!")
+    ColorGame(ColorGamePlugin plugin) {
+        super(plugin, "Color Run", "Avoid the enemy blocks and try to\ncontrol the most blocks within\n2 minutes!")
         arena = new UnlimitedArena()
         arena.spawnPoints = new Location(Bukkit.getWorlds()[0], 100, 5, 100)
-        gameState = TNTGameState.WAITING
+        gameState = ColorGameState.WAITING
     }
 
     @Override
     void ready() {
-        gameState = TNTGameState.STARTING
+        gameState = ColorGameState.STARTING
         new BukkitRunnable() {
             @Override
             void run() {
-                if (gameState == TNTGameState.ACTIVE) {
+                if (gameState == ColorGameState.ACTIVE) {
                     cancel()
                     return
                 }
 
-                if (players.size() < 2 && gameState == TNTGameState.STARTING) {
+                if (players.size() < 2 && gameState == ColorGameState.STARTING) {
                     _startTime = 60
-                    gameState = TNTGameState.WAITING
+                    gameState = ColorGameState.WAITING
                     cancel()
                     return
                 }
 
                 _startTime--
                 if (_startTime == 0) {
-                    broadcast("&a&lThe game has started!")
-                    new GameTask(plugin, new TNTGameCampTask(instance)).delay(5L).repeating()
-                    new GameTask(plugin, new TNTGamePointTask(instance)).delay(300L).repeating()
                     start()
                     cancel()
                 } else if (_startTime % 5 == 0 || _startTime <= 5) {
@@ -72,17 +66,19 @@ class TNTGame extends Game<TNTGamePlayer, UnlimitedArena> implements Spectatable
     @Override
     void start() {
         super.start()
-        gameState = TNTGameState.ACTIVE
+        broadcast("&a&lThe game has started!")
+        gameState = ColorGameState.ACTIVE
         players().each {it.allowFlight = true}
+        new GameTask(plugin, () -> stop()).delay(2400L).complete()
     }
 
     @Override
     void stop() {
         super.stop()
-        gameState = TNTGameState.ENDING
+        gameState = ColorGameState.ENDING
         new GameTask(plugin, () -> {
             players().each {
-                TNTGamePlayer data = getPlayerData(it)
+                ColorGamePlayer data = getPlayerData(it)
                 buildWrapper("Reward Summary", "  &7You earned\n      &f▪ &b${data.coins} Party Games Coins\n      &f▪ &30 Twoot Experience\n&f").toList().forEach(s -> it.sendMessage(CC.translate(s)))
             }
         }).delay(60L).then(() -> Bukkit.shutdown()).delay(240L).complete()
@@ -91,43 +87,23 @@ class TNTGame extends Game<TNTGamePlayer, UnlimitedArena> implements Spectatable
     @Override
     void join(Player player) {
         super.join(player)
-        players.put(player.uniqueId, new TNTGamePlayer(player.uniqueId))
+        players.put(player.uniqueId, new ColorGamePlayer(player.uniqueId))
 
         if (players.size() == 2) ready()
     }
 
     @Override
-    void startSpectating(Player player) {
-        getPlayerData(player).timeOfDeath = System.currentTimeMillis()
-        getPlayerData(player).state = TNTGamePlayerState.SPECTATING
-        gameItemManager.getItemBundle("spectator").apply(player)
-        player.allowFlight = true
-        player.flying = true
-        player.teleport(arena.spawnPoints[0])
-    }
-
-    @Override
-    boolean isSpectating(Player player) {
-        return getPlayerData(player).state == TNTGamePlayerState.SPECTATING
-    }
-
-    @Override
-    Collection<? extends Player> alivePlayers() {
-        return players().stream().filter(p -> getPlayerData(p).state == TNTGamePlayerState.ALIVE).collect(Collectors.toList())
-    }
-
-    @Override
     String getTitle(Player player) {
-        return "&e&lTNT RUN"
+        return "&e&lCOLOR RUN"
     }
 
     @Override
     List<String> getLines(Player player) {
-        TNTGamePlayer data = getPlayerData(player)
+        ColorGamePlayer data = getPlayerData(player)
         var required = 2 - players.size()
 
         switch (gameState) {
-            case TNTGameState.WAITING: {
+            case ColorGameState.WAITING: {
                 return [
                         "&7${new SimpleDateFormat("dd/MM/yy").format(new Date(System.currentTimeMillis()))}",
                         "",
@@ -142,7 +118,7 @@ class TNTGame extends Game<TNTGamePlayer, UnlimitedArena> implements Spectatable
                         "&ewww.twoot.tk"
                 ]
             }
-            case TNTGameState.STARTING: {
+            case ColorGameState.STARTING: {
                 return [
                         "&7${new SimpleDateFormat("dd/MM/yy").format(new Date(System.currentTimeMillis()))}",
                         "",
@@ -158,16 +134,16 @@ class TNTGame extends Game<TNTGamePlayer, UnlimitedArena> implements Spectatable
                         "&ewww.twoot.tk"
                 ]
             }
-            case TNTGameState.ACTIVE:
-            case TNTGameState.ENDING: {
+            case ColorGameState.ACTIVE:
+            case ColorGameState.ENDING: {
                 return [
                         "&7Duration: ${TimeUtil.millisToRoundedTime(System.currentTimeMillis() - started)}",
                         "",
-                        "&fDouble Jump: &a${data.doubleJumps}&7/6",
+                        "&fColor: &a${data.color.displayName}",
                         "",
-                        "&fPlayers Alive: &a${players.values().stream().filter(it -> it.state == TNTGamePlayerState.ALIVE).count()}",
+                        "&fPlayers Alive: &a${players.values().stream().filter(it -> it.state == ColorGamePlayerState.ALIVE).count()}",
                         "",
-                        "&fCoins Earned: &a${data.coins as int}",
+                        "&fBlocks Captured: &a${data.coins as int}",
                         "",
                         "&7${new SimpleDateFormat("dd/MM/yy").format(new Date(System.currentTimeMillis()))}",
                         "&ewww.twoot.tk"
