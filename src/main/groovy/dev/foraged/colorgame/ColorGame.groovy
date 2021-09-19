@@ -111,7 +111,7 @@ class ColorGame extends Game<ColorGamePlayer, UnlimitedArena> implements GameBoa
                 return [
                         arenaInfo,
                         "",
-                        "&fMap: &b${arena.class.simpleName}",
+                        "&fMap: &b${arena.name}",
                         "&fPlayers: &b${players.size()}/${Bukkit.maxPlayers}",
                         "",
                         "&fWaiting for &b${required}&f more",
@@ -126,7 +126,7 @@ class ColorGame extends Game<ColorGamePlayer, UnlimitedArena> implements GameBoa
                 return [
                         arenaInfo,
                         "",
-                        "&fMap: &b${arena.class.simpleName}",
+                        "&fMap: &b${arena.name}",
                         "&fPlayers: &b${players.size()}/${Bukkit.maxPlayers}",
                         "",
                         "&fStarting in &b${new SimpleDateFormat("mm:ss").format(new Date(_startTime * 1000))}&f to",
