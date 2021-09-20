@@ -6,7 +6,7 @@ import dev.foraged.colorgame.ColorGame
 import dev.foraged.colorgame.ColorGamePlugin
 import dev.foraged.colorgame.ColorGameState
 import dev.foraged.colorgame.player.ColorGamePlayer
-import dev.foraged.colorgame.player.ColorGamePlayerState
+
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
@@ -66,7 +66,7 @@ class ColorGameListener implements Listener {
             Block relative = to.block.getRelative(BlockFace.DOWN)
             ColorGamePlayer data = game.getPlayerData(player.uniqueId)
 
-            if (data != null && data.state == ColorGamePlayerState.ALIVE) {
+            if (data != null) {
                 if (relative.type == Material.BARRIER) {
                     new GameTask(game.plugin, () -> {
                             data.coins = data.coins + 1

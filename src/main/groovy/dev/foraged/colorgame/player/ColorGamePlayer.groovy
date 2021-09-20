@@ -8,14 +8,11 @@ class ColorGamePlayer extends GamePlayer implements Comparable<ColorGamePlayer> 
     static ColorGamePlayerColor nextColor = ColorGamePlayerColor.RED
 
     ColorGamePlayerColor color
-    ColorGamePlayerState state
 
     ColorGamePlayer(UUID id) {
         super(id)
         color = nextColor
         nextColor = nextColor.next
-
-        state = ColorGamePlayerState.ALIVE
     }
 
     @Override

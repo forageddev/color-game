@@ -1,6 +1,6 @@
 package dev.foraged.colorgame
 
-import dev.foraged.colorgame.listener.ColorGameListener
+
 import dev.foraged.game.Game
 import dev.foraged.game.arena.impl.UnlimitedArena
 import dev.foraged.game.board.GameBoardAdapter
@@ -9,7 +9,6 @@ import dev.foraged.game.util.CC
 import dev.foraged.game.util.ItemBuilder
 import dev.foraged.game.util.TimeUtil
 import dev.foraged.colorgame.player.ColorGamePlayer
-import dev.foraged.colorgame.player.ColorGamePlayerState
 
 import org.bukkit.Bukkit
 import org.bukkit.Location
