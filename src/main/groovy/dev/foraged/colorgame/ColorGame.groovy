@@ -5,6 +5,7 @@ import dev.foraged.game.Game
 import dev.foraged.game.arena.impl.UnlimitedArena
 import dev.foraged.game.board.GameBoardAdapter
 import dev.foraged.game.task.GameTask
+import dev.foraged.game.task.impl.GameCountdownTask
 import dev.foraged.game.util.CC
 import dev.foraged.game.util.ItemBuilder
 import dev.foraged.game.util.TimeUtil
@@ -13,16 +14,11 @@ import dev.foraged.colorgame.player.ColorGamePlayer
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.Sound
 import org.bukkit.entity.Player
-import org.bukkit.scheduler.BukkitRunnable
 
 import java.text.SimpleDateFormat
 
-class ColorGame extends Game<ColorGamePlayer, UnlimitedArena> implements GameBoardAdapter {
-
-    ColorGameState gameState
-    var _startTime = 30
+class ColorGame extends Game<ColorGamePlayer, UnlimitedArena, ColorGameState> implements GameBoardAdapter {
 
     ColorGame(ColorGamePlugin plugin) {
         super(plugin, "Color Run", "Avoid the enemy blocks and try to\ncontrol the most blocks within\n2 minutes!")
@@ -33,36 +29,8 @@ class ColorGame extends Game<ColorGamePlayer, UnlimitedArena> implements GameBoa
 
     @Override
     void ready() {
+        countdownTask = new GameCountdownTask(this, 30, 2)
         gameState = ColorGameState.STARTING
-        new BukkitRunnable() {
-            @Override
-            void run() {
-                if (gameState == ColorGameState.ACTIVE) {
-                    cancel()
-                    return
-                }
-
-                if (players.size() < 2 && gameState == ColorGameState.STARTING) {
-                    _startTime = 60
-                    gameState = ColorGameState.WAITING
-                    cancel()
-                    return
-                }
-
-                _startTime--
-                if (_startTime == 0) {
-                    start()
-                    cancel()
-                } else if (_startTime % 5 == 0 || _startTime <= 5) {
-                    var color
-                    if (_startTime > 10) color = "&e"
-                    else if (_startTime > 5) color = "&6"
-                    else color = "&c"
-                    broadcast("&eThe game starts in ${color}${_startTime}&e second${_startTime == 1 ? "" : "s"}!")
-                    players().each {it.playSound(it.location, Sound.BLOCK_COMPARATOR_CLICK, 1f, 1f)}
-                }
-            }
-        }.runTaskTimer(plugin, 20L, 20L)
     }
 
     @Override
@@ -128,7 +96,7 @@ class ColorGame extends Game<ColorGamePlayer, UnlimitedArena> implements GameBoa
                         "&fMap: &b${arena.name}",
                         "&fPlayers: &b${players.size()}/${Bukkit.maxPlayers}",
                         "",
-                        "&fStarting in &b${new SimpleDateFormat("mm:ss").format(new Date(_startTime * 1000))}&f to",
+                        "&fStarting in &b${new SimpleDateFormat("mm:ss").format(new Date(countdownTask.time * 1000))}&f to",
                         "&fallow time for",
                         "&fadditional players",
                         "",
